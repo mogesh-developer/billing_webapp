@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Billing{% endblock %}
+
+{% block content %}
+<div class="billing-container" style="display: flex; gap: 20px;">
+    <!-- Left: Product Entry -->
+    <div class="card" style="flex: 2;">
+        <h3>Add Items</h3>
+        <div class="form-group" style="display: flex; gap: 10px;">
+            <input type="text" id="productSearch" class="form-control" placeholder="Scan Barcode or Search Product..."
+                onkeypress="handleEnter(event)">
+            <button class="btn btn-primary" onclick="searchProduct()">Search</button>
+        </div>
+        <div id="searchResults" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+
+        <h3 style="margin-top: 20px;">Current Bill</h3>
+        <table id="billTable">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Items will be added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Right: Summary & Checkout -->
+    <div class="card" style="flex: 1; height: fit-content;">
+        <h3>Bill Details</h3>
+        <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" id="customerName" class="form-control" placeholder="Walk-in Customer">
+        </div>
+
+        <div class="form-group">
+            <label>Payment Mode</label>
+            <select id="paymentMode" class="form-control">
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+                <option value="UPI">UPI/Online</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 20px; border-top: 2px dashed #eee; padding-top: 15px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Subtotal:</span>
+                <span><span id="currencySymbol">$</span><span id="subtotalAmount">0.00</span></span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span>Tax (<input type="number" id="taxRate" value="0" style="width: 40px; text-align: right;"
+                        onchange="updateTotals()">%):</span>
+                <span>+ <span id="taxAmountDisplay">0.00</span></span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span>Discount:</span>
+                <input type="number" id="discountAmount" value="0" style="width: 80px; text-align: right;"
+                    class="form-control" onchange="updateTotals()">
+            </div>
+
+            <div
+                style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">
+                <span>Total:</span>
+                <span><span id="totalCurrency"></span><span id="totalAmount">0.00</span></span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="processCheckout()">
+            Complete Sale
+        </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/billing.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #{{ bill.bill_number }}</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            width: 80mm;
+            /* Standard Thermal Paper Width */
+            margin: 0 auto;
+            padding: 10px;
+            background: #fff;
+            color: #000;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .header p {
+            margin: 2px 0;
+            font-size: 0.8rem;
+        }
+
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+
+        .info {
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        th {
+            text-align: left;
+            border-bottom: 1px solid #000;
+        }
+
+        td {
+            padding: 4px 0;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .totals {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .grand-total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.7rem;
+        }
+
+        @media print {
+            body {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body onload="window.print()">
+    <div class="header">
+        <h2>{{ settings.shop_name if settings else 'Grocery Shop' }}</h2>
+        <p>{{ settings.address if settings else '' }}</p>
+        <p>Tel: {{ settings.phone if settings else '' }}</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="info">
+        <p>Bill No: {{ bill.bill_number }}</p>
+        <p>Date: {{ bill.date.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p>User: {{ bill.customer_name }}</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th class="text-right">Price</th>
+                <th class="text-right">Amt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in bill.items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td class="text-right">{{ "%.2f"|format(item.price_at_sale) }}</td>
+                <td class="text-right">{{ "%.2f"|format(item.subtotal) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <div class="totals">
+        <div class="total-row">
+            <span>Subtotal:</span>
+            <span>{{ settings.currency_symbol if settings else '$' }}{{ "%.2f"|format(bill.subtotal) }}</span>
+        </div>
+        {% if bill.tax_amount > 0 %}
+        <div class="total-row">
+            <span>Tax:</span>
+            <span>{{ "%.2f"|format(bill.tax_amount) }}</span>
+        </div>
+        {% endif %}
+        {% if bill.discount_amount > 0 %}
+        <div class="total-row">
+            <span>Discount:</span>
+            <span>-{{ "%.2f"|format(bill.discount_amount) }}</span>
+        </div>
+        {% endif %}
+        <div class="divider"></div>
+        <div class="total-row grand-total">
+            <span>TOTAL:</span>
+            <span>{{ settings.currency_symbol if settings else '$' }}{{ "%.2f"|format(bill.total_amount) }}</span>
+        </div>
+        <div class="total-row" style="font-size: 0.8rem; margin-top: 5px;">
+            <span>Payment Mode:</span>
+            <span>{{ bill.payment_mode }}</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for shopping with us!</p>
+        <p>Please come again.</p>
+    </div>
+</body>
+
+</html>
